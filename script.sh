@@ -22,6 +22,22 @@ SNAP_PROGRAMS_TO_INSTALL=(
   postman
 )
 
+if ! ping -c 1 8.8.8.8 -q &> /dev/null; then
+  echo "[ERRO] - Seu computador não tem conexão com a internet. Verifique os cabos e o modem."
+  exit 1
+else
+  echo "[INFO] - Conexão com a internet funcionando normalmente."
+fi
+
+if [[ ! -x `which wget` ]]; then
+  echo "[INFO] wget não está instalado."
+  echo "[INFO] Instalando wget."
+  sudo apt install wget -y
+else
+  echo "[INFO] wget já está instalado."
+fi
+
+
 remove_locks () {
   sudo rm /var/lib/dpkg/lock-frontend
   sudo rm /var/cache/apt/archives/lock
