@@ -32,28 +32,32 @@ fi
 if [[ ! -x `which wget` ]]; then
   echo "[INFO] wget não está instalado."
   echo "[INFO] Instalando wget."
-  sudo apt install wget -y
+  sudo apt install wget -y &> /dev/null
 else
   echo "[INFO] wget já está instalado."
 fi
 
 
 remove_locks () {
-  sudo rm /var/lib/dpkg/lock-frontend
-  sudo rm /var/cache/apt/archives/lock
+  echo "[INFO] - Removendo locks..."
+  sudo rm /var/lib/dpkg/lock-frontend &> /dev/null
+  sudo rm /var/cache/apt/archives/lock &> /dev/null
 }
 
 add_i386_architecture () {
- sudo dpkg --add-architecture i386 
+ echo "[INFO] - Adicionando arquitetura i386..."
+ sudo dpkg --add-architecture i386 &> /dev/null
 }
 
 update_repositories () {
-  sudo apt update -y
+  echo "[INFO] - Atualizando repositórios..."
+  sudo apt update -y &> /dev/null
 }
 
 add_ppas () {
-  sudo apt-add-repository "$PPA_PIPER_LIBRATG" -y
-  sudo add-apt-repository "$PPA_LUTRIS" -y
+  echo "[INFO] - Adicionando PPAs..."
+  sudo apt-add-repository "$PPA_PIPER_LIBRATG" -y &> /dev/null
+  sudo add-apt-repository "$PPA_LUTRIS" -y &> /dev/null
   update_repositories
 }
 
@@ -62,23 +66,24 @@ download_debs () {
   for url in {$DEB_PROGRAMS_TO_INSTALL[@]}; do
     extracted_url=$(echo ${url##*/} | sed 's/-/_/g' | cut -d _ -f 1)
     if ! dpkg -l | grep -iq $extracted_url; then
-      wget -c "$url" -P "$PATH_DOWNLOADS_PROGRAMS"
-      sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/${url##*/}
+      echo "[INFO] - Baixando arquivo $extracted_url..."
+      wget -c "$url" -P "$PATH_DOWNLOADS_PROGRAMS" &> /dev/null
+      echo "[INFO] - Instalando o $extracted_url..."
+      sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/${url##*/} &> /dev/null
+
+      echo "[INFO] - Instalando dependências..."
+      sudo apt -f install -y &> /dev/null
     else
       echo "[INFO] - O programa $extracted_url já está instalado."
     fi
   done
   }
 
-install_debs () {
-  sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/*.deb
-  sudo apt -f install -y
-}
-
 install_apt_packages () {
   for program in ${APT_PROGRAMS_TO_INSTALL[@]}; do
     if ! dpkg -l | grep -q $program; then
-      sudo apt install $program -y
+      echo "[INFO] - Instalando o $program..."
+      sudo apt install $program -y &> /dev/null
     else
       echo "[INFO] - O pacote $programa já está instalado."
     fi
@@ -88,23 +93,28 @@ install_apt_packages () {
 install_snap_packages() {
   for program in ${SNAP_PROGRAMS_TO_INSTALL[@]}; do
     if ! snap list | grep -q $program; then
-      sudo snap install $program
+      echo "[INFO] - Instalando o $program..."
+      sudo snap install $program &> /dev/null
     else
       echo "[INFO] - O pacote $programa já está instalado."
     fi
   done
 }
 
+
+
 upgrade_and_clear_system () {
-  sudo apt dist-upgrade -y
-  sudo apt autoclean
-  sudo apt autoremove -y
+  echo "[INFO] - Fazendo limpeza e upgrade do sistema..."
+  sudo apt dist-upgrade -y &> /dev/null
+  sudo apt autoclean &> /dev/null
+  sudo apt autoremove -y &> /dev/null
 }
 
 
 remove_locks
 add_i386_architecture
 add_ppas
+download_debs
 install_apt_packages
 install_snap_packages
 upgrade_and_clear_system
