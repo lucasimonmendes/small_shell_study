@@ -22,40 +22,44 @@ SNAP_PROGRAMS_TO_INSTALL=(
   postman
 )
 
+RED='\e[1;91m'
+GREEN='\e[1;92m'
+REMOVE_COLOR='\e[0m'
+
 if ! ping -c 1 8.8.8.8 -q &> /dev/null; then
-  echo "[ERRO] - Seu computador não tem conexão com a internet. Verifique os cabos e o modem."
+  echo -e "${RED}[ERRO] - Seu computador não tem conexão com a internet. Verifique os cabos e o modem.${REMOVE_COLOR}"
   exit 1
 else
-  echo "[INFO] - Conexão com a internet funcionando normalmente."
+  echo -e "${GREEN}[INFO] - Conexão com a internet funcionando normalmente.${REMOVE_COLOR}"
 fi
 
 if [[ ! -x `which wget` ]]; then
-  echo "[INFO] wget não está instalado."
-  echo "[INFO] Instalando wget."
+  echo -e "${RED}[ERRO] - wget não está instalado.${REMOVE_COLOR}"
+  echo -e "${GREEN}[INFO] - Instalando wget.${REMOVE_COLOR}"
   sudo apt install wget -y &> /dev/null
 else
-  echo "[INFO] wget já está instalado."
+  echo -e "${GREEN}[INFO] - wget já está instalado.${REMOVE_COLOR}"
 fi
 
 
 remove_locks () {
-  echo "[INFO] - Removendo locks..."
+  echo -e "${GREEN}[INFO] - Removendo locks...${REMOVE_COLOR}"
   sudo rm /var/lib/dpkg/lock-frontend &> /dev/null
   sudo rm /var/cache/apt/archives/lock &> /dev/null
 }
 
 add_i386_architecture () {
- echo "[INFO] - Adicionando arquitetura i386..."
+ echo -e "{GREEN}[INFO] - Adicionando arquitetura i386...${REMOVE_COLOR}"
  sudo dpkg --add-architecture i386 &> /dev/null
 }
 
 update_repositories () {
-  echo "[INFO] - Atualizando repositórios..."
+  echo -e "${GREEN}[INFO] - Atualizando repositórios...${REMOVE_COLOR}"
   sudo apt update -y &> /dev/null
 }
 
 add_ppas () {
-  echo "[INFO] - Adicionando PPAs..."
+  echo -e "${GREEN}[INFO] - Adicionando PPAs...${REMOVE_COLOR}"
   sudo apt-add-repository "$PPA_PIPER_LIBRATG" -y &> /dev/null
   sudo add-apt-repository "$PPA_LUTRIS" -y &> /dev/null
   update_repositories
@@ -66,15 +70,15 @@ download_debs () {
   for url in {$DEB_PROGRAMS_TO_INSTALL[@]}; do
     extracted_url=$(echo ${url##*/} | sed 's/-/_/g' | cut -d _ -f 1)
     if ! dpkg -l | grep -iq $extracted_url; then
-      echo "[INFO] - Baixando arquivo $extracted_url..."
+      echo -e "${GREEN}[INFO] - Baixando arquivo $extracted_url...${REMOVE_COLOR}"
       wget -c "$url" -P "$PATH_DOWNLOADS_PROGRAMS" &> /dev/null
-      echo "[INFO] - Instalando o $extracted_url..."
+      echo -e "${GREEN}[INFO] - Instalando o $extracted_url...${REMOVE_COLOR}"
       sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/${url##*/} &> /dev/null
 
-      echo "[INFO] - Instalando dependências..."
+      echo -e "${GREEN}[INFO] - Instalando dependências...${REMOVE_COLOR}"
       sudo apt -f install -y &> /dev/null
     else
-      echo "[INFO] - O programa $extracted_url já está instalado."
+      echo -e "${GREEN}[INFO] - O programa $extracted_url já está instalado.${REMOVE_COLOR}"
     fi
   done
   }
@@ -82,10 +86,10 @@ download_debs () {
 install_apt_packages () {
   for program in ${APT_PROGRAMS_TO_INSTALL[@]}; do
     if ! dpkg -l | grep -q $program; then
-      echo "[INFO] - Instalando o $program..."
+      echo -e "${GREEN}[INFO] - Instalando o $program...${REMOVE_COLOR}"
       sudo apt install $program -y &> /dev/null
     else
-      echo "[INFO] - O pacote $programa já está instalado."
+      echo -e "${GREEN}[INFO] - O pacote $programa já está instalado.${REMOVE_COLOR}"
     fi
   done
 }
@@ -93,10 +97,10 @@ install_apt_packages () {
 install_snap_packages() {
   for program in ${SNAP_PROGRAMS_TO_INSTALL[@]}; do
     if ! snap list | grep -q $program; then
-      echo "[INFO] - Instalando o $program..."
+      echo -e "${GREEN}[INFO] - Instalando o $program...${REMOVE_COLOR}"
       sudo snap install $program &> /dev/null
     else
-      echo "[INFO] - O pacote $programa já está instalado."
+      echo -e "${GREEN}[INFO] - O pacote $programa já está instalado.${REMOVE_COLOR}"
     fi
   done
 }
@@ -104,7 +108,7 @@ install_snap_packages() {
 
 
 upgrade_and_clear_system () {
-  echo "[INFO] - Fazendo limpeza e upgrade do sistema..."
+  echo -e "${GREEN}[INFO] - Fazendo limpeza e upgrade do sistema...${REMOVE_COLOR}"
   sudo apt dist-upgrade -y &> /dev/null
   sudo apt autoclean &> /dev/null
   sudo apt autoremove -y &> /dev/null
