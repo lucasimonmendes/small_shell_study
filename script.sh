@@ -8,6 +8,17 @@ URL_SIMPLENOTE="https://github.com/Automattic/simplenote-electron/releases/downl
 
 PATH_DOWNLOADS_PROGRAMS="$HOME/Downloads/programas"
 
+APT_PROGRAMS_TO_INSTALL=(
+  snapd
+  winff
+  guvcview
+  virtualbox
+)
+
+SNAP_PROGRAMS_TO_INSTALL=(
+  spotify
+  postman
+)
 
 remove_locks () {
   sudo rm /var/lib/dpkg/lock-frontend
@@ -28,23 +39,35 @@ add_ppas () {
   update_repositories
 }
 
-install_debs () {
+download_debs () {
   [[ ! -d "$PATH_DOWNLOADS_PROGRAMS" ]] && mkdir "$PATH_DOWNLOADS_PROGRAMS"
   wget "$URL_GOOGLE_CHROME" -P "$PATH_DOWNLOADS_PROGRAMS"
   wget "$URL_SIMPLENOTE" -P    "$PATH_DOWNLOADS_PROGRAMS"
+  }
+
+install_debs () {
   sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/*.deb
   sudo apt -f install -y
 }
 
 install_apt_packages () {
-  sudo apt install snapd -y
-  sudo apt install winff -y
-  sudo apt install guvcview -y
-  sudo apt install virtualbox -y
+  for program in ${APT_PROGRAMS_TO_INSTALL[@]}; do
+    if ! dpkg -l | grep -q $program; then
+      sudo apt install $program -y
+    else
+      echo "[INFO] - O pacote $programa já está instalado."
+    fi
+  done
 }
 
 install_snap_packages() {
-  sudo snap install spotify
+  for program in ${SNAP_PROGRAMS_TO_INSTALL[@]}; do
+    if ! snap list | grep -q $program; then
+      sudo snap install $program
+    else
+      echo "[INFO] - O pacote $programa já está instalado."
+    fi
+  done
 }
 
 upgrade_and_clear_system () {
