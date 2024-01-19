@@ -3,10 +3,12 @@
 PPA_PIPER_LIBRATG="ppa:libratbag-piper/piper-libratbag-git "
 PPA_LUTRIS="ppa:lutris-team/lutris"
 
-URL_GOOGLE_CHROME="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-URL_SIMPLENOTE="https://github.com/Automattic/simplenote-electron/releases/download/v1.8.0/Simplenote-linux-1.8.0-amd64.deb"
-
 PATH_DOWNLOADS_PROGRAMS="$HOME/Downloads/programas"
+
+DEB_PROGRAMS_TO_INSTALL=(
+  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  https://github.com/Automattic/simplenote-electron/releases/download/v1.8.0/Simplenote-linux-1.8.0-amd64.deb
+)
 
 APT_PROGRAMS_TO_INSTALL=(
   snapd
@@ -41,8 +43,15 @@ add_ppas () {
 
 download_debs () {
   [[ ! -d "$PATH_DOWNLOADS_PROGRAMS" ]] && mkdir "$PATH_DOWNLOADS_PROGRAMS"
-  wget "$URL_GOOGLE_CHROME" -P "$PATH_DOWNLOADS_PROGRAMS"
-  wget "$URL_SIMPLENOTE" -P    "$PATH_DOWNLOADS_PROGRAMS"
+  for url in {$DEB_PROGRAMS_TO_INSTALL[@]}; do
+    extracted_url=$(echo ${url##*/} | sed 's/-/_/g' | cut -d _ -f 1)
+    if ! dpkg -l | grep -iq $extracted_url; then
+      wget -c "$url" -P "$PATH_DOWNLOADS_PROGRAMS"
+      sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/${url##*/}
+    else
+      echo "[INFO] - O programa $extracted_url já está instalado."
+    fi
+  done
   }
 
 install_debs () {
