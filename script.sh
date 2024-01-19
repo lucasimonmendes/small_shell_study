@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# post_instalation_ubuntu.sh - Make the post configuration of Ubuntu 19.10
+#  
+# Author:        Lucas Simon
+# Maintenance:   Lucas Simon
+#
+# ------------------------------------------------------------------------ #
+# WHAT IT DOES?
+# This script installs the programs I use after installation, upgrades and cleaning the system. 
+# It is easy to expand (change variables).
+#
+# HOW TO USE IT?
+# $ ./post_instalation_ubuntu.sh
+#
+# ------------------------------------------------------------------------ #
+# Changelog:
+#
+#   v1.0 19/01/2024, Lucas Simon:
+#     - First version with comments!
+#
+# ------------------------------------------------------------------------ #
+
+
+# -------------------------------VARIABLES----------------------------------------- #
 PPA_PIPER_LIBRATG="ppa:libratbag-piper/piper-libratbag-git "
 PPA_LUTRIS="ppa:lutris-team/lutris"
 
@@ -25,7 +48,9 @@ SNAP_PROGRAMS_TO_INSTALL=(
 RED='\e[1;91m'
 GREEN='\e[1;92m'
 REMOVE_COLOR='\e[0m'
+# ----------------------------------------------------------------------------- #
 
+# -------------------------------TESTS----------------------------------------- #
 if ! ping -c 1 8.8.8.8 -q &> /dev/null; then
   echo -e "${RED}[ERRO] - Seu computador não tem conexão com a internet. Verifique os cabos e o modem.${REMOVE_COLOR}"
   exit 1
@@ -40,8 +65,9 @@ if [[ ! -x `which wget` ]]; then
 else
   echo -e "${GREEN}[INFO] - wget já está instalado.${REMOVE_COLOR}"
 fi
+# --------------------------------------------------------------------------------- #
 
-
+# -------------------------------FUNCTIONS----------------------------------------- #
 remove_locks () {
   echo -e "${GREEN}[INFO] - Removendo locks...${REMOVE_COLOR}"
   sudo rm /var/lib/dpkg/lock-frontend &> /dev/null
@@ -105,16 +131,15 @@ install_snap_packages() {
   done
 }
 
-
-
 upgrade_and_clear_system () {
   echo -e "${GREEN}[INFO] - Fazendo limpeza e upgrade do sistema...${REMOVE_COLOR}"
   sudo apt dist-upgrade -y &> /dev/null
   sudo apt autoclean &> /dev/null
   sudo apt autoremove -y &> /dev/null
 }
+# ------------------------------------------------------------------------------- #
 
-
+# -------------------------------EXECUTE----------------------------------------- #
 remove_locks
 add_i386_architecture
 add_ppas
@@ -122,3 +147,5 @@ download_debs
 install_apt_packages
 install_snap_packages
 upgrade_and_clear_system
+# --------------------------------------------------------------------------------- #
+
