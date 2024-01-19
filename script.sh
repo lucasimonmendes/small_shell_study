@@ -29,7 +29,7 @@ add_ppas () {
 }
 
 install_debs () {
-  mkdir "$PATH_DOWNLOADS_PROGRAMS"
+  [[ ! -d "$PATH_DOWNLOADS_PROGRAMS" ]] && mkdir "$PATH_DOWNLOADS_PROGRAMS"
   wget "$URL_GOOGLE_CHROME" -P "$PATH_DOWNLOADS_PROGRAMS"
   wget "$URL_SIMPLENOTE" -P    "$PATH_DOWNLOADS_PROGRAMS"
   sudo dpkg -i $PATH_DOWNLOADS_PROGRAMS/*.deb
