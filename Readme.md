@@ -1,5 +1,6 @@
 # post_instalation_ubuntu.sh - Make the post configuration of Ubuntu 19.10
- This script installs the programs I use after installation, upgrades and cleaning the system.
+ **Script created for the purpose of studying functions, loops and variables in shell.**
+ This script installs the programs for user after installation, upgrades and cleaning the system.
 
 ## Requirements
 Ubuntu 19.10
